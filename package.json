@@ -2,7 +2,7 @@
   "name": "cpp-create-definition",
   "displayName": "C++ Create Definition",
   "description": "",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "engines": {
     "vscode": "^1.76.0"
   },
