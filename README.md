@@ -2,6 +2,10 @@
 
 https://github.com/boocs/cpp-create-definition
 
+## [1.1.1] - 2023-09-16
+### Update
+- npm audit fix
+
 ## [1.1.0] - 2023-09-13
 ### Added
 - Multi line support
