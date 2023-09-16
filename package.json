@@ -2,7 +2,7 @@
   "name": "cpp-create-definition",
   "displayName": "C++ Create Definition",
   "description": "",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "engines": {
     "vscode": "^1.76.0"
   },
@@ -24,6 +24,10 @@
     "commands": [
       {
         "command": "cpp-create-definition.createDefinition",
+        "title": "C++ Create Definition (switch)"
+      },
+      {
+        "command": "cpp-create-definition.createDefinitionNoSwitch",
         "title": "C++ Create Definition"
       }
     ],
@@ -31,6 +35,10 @@
       "editor/context": [
         {
           "command": "cpp-create-definition.createDefinition",
+          "group": "cpp-create-definition"
+        },
+        {
+          "command": "cpp-create-definition.createDefinitionNoSwitch",
           "group": "cpp-create-definition"
         }
       ]

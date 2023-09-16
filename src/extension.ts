@@ -13,7 +13,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	console.log("C++ Create Definition is now active!\n");
 
 	let disposable = vscode.commands.registerCommand('cpp-create-definition.createDefinition', createDefinition);
+	context.subscriptions.push(disposable);
 
+	disposable = vscode.commands.registerCommand('cpp-create-definition.createDefinitionNoSwitch', () => {createDefinition(false);});
 	context.subscriptions.push(disposable);
 }
 
@@ -22,7 +24,7 @@ export function deactivate() {
 	console.outputChannel.dispose();
 }
 
-const createDefinition = async () => {
+const createDefinition = async (doSwitch: boolean = true) => {
 	
 	const currentTextEditor = new HeaderEditor(vscode.window.activeTextEditor);
 
@@ -30,10 +32,9 @@ const createDefinition = async () => {
 		return;
 	}
 
-	const currentTextLine = currentTextEditor.currentTextLine;
+	const currentDeclaration = currentTextEditor.currentDeclaration;
 
-	if (currentTextLine.isEmptyOrWhitespace) {
-		console.log("Current text is empty");
+	if (!currentDeclaration) {
 		return;
 	}
 
@@ -48,14 +49,14 @@ const createDefinition = async () => {
 
 	const className = getClassName(currentTextEditor.document.getText(), /(?<=class)(?<className>\s\w+)+\s*:?.*[\n\r]*{/);
 	const sourceDoc = await vscode.workspace.openTextDocument(sourceUri);
-	const newFunctionDefinition = getFunctionDefinition(currentTextLine.text, className, sourceDoc);
+	const newFunctionDefinition = getFunctionDefinition(currentDeclaration, className, sourceDoc);
 
 	if (!newFunctionDefinition) {
-		console.warning(`Couldn't get function definition from: ${currentTextLine.text}`);
+		console.warning(`Couldn't get function definition from: ${currentDeclaration}`);
 		return;
 	}
 
-	const sourceEditor = await vscode.window.showTextDocument(sourceDoc);
+	const sourceEditor = await showTextDocument(sourceDoc, doSwitch);
 	
 	const sourceDocTextLength = sourceDoc.getText().length;
 	const editPosition = sourceDoc.positionAt(sourceDocTextLength);
@@ -64,8 +65,13 @@ const createDefinition = async () => {
 		editBuilder.insert(editPosition, newFunctionDefinition);
 	});
 
+	
 	await vscode.commands.executeCommand(CMD_CURSOR_BOTTOM);
 
+	if(!doSwitch){
+		await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+	}
+	
 	return;
 };
 
@@ -73,11 +79,13 @@ const createDefinition = async () => {
 function getFunctionDefinition(functionDeclaration: string, className_: string, sourceDoc: vscode.TextDocument): string {
 	let declaration = functionDeclaration;
 
-	let className = className_;
-	if (!className) {
-		console.log("Attempting 2nd try class name.");
-		className = getClassName(sourceDoc.getText(), /(?<className>\w+)::/); // 2nd chance to get class name
-	}
+	// use more reliable classname
+	let className = getClassName(sourceDoc.getText(), /(?<className>\w+)::/); 
+
+	if(!className){
+		console.log("Using classname alternative.");
+		className = className_;
+	}	
 
 	const re = /(?<prefix>.*)(?<funcNameArgs>\s\w+\(.*\))(?<postfix>.*);$/;
 	const match = declaration.match(re);
@@ -107,6 +115,13 @@ function getFunctionDefinition(functionDeclaration: string, className_: string, 
 		declaration = `${prefix}${funcNameArgs}${postfix}`.trim();
 	}
 
+	// remove multiple spaces
+	declaration = declaration.replace(/\s{2,}/gm, ' ');
+
+	// remove space before ')'
+	declaration = declaration.replace(/\s\)/gm, ')');
+
+	// add function body
 	const newDefinition = declaration.concat(FUNC_BODY);
 
 	return `\n${newDefinition}\n`;
@@ -192,4 +207,14 @@ function getUriWorkspaceFolder(uri: vscode.Uri) {
 	}
 
 	return undefined;
+}
+
+async function showTextDocument(sourceDoc: vscode.TextDocument, doSwitch: boolean): Promise<vscode.TextEditor> {
+
+	if(doSwitch){
+		return await vscode.window.showTextDocument(sourceDoc);
+	}
+	else{
+		return await vscode.window.showTextDocument(sourceDoc, {viewColumn: vscode.ViewColumn.Beside});
+	}
 }

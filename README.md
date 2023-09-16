@@ -2,6 +2,16 @@
 
 https://github.com/boocs/cpp-create-definition
 
+## [1.1.0] - 2023-09-13
+### Added
+- Multi line support
+- Create without switching to source file
+### Fixed
+- more reliable classname
+- Removed errant spaces
+
+-----
+## How To use
 In a header file right click on a function declaration and choose `C++ Create Definition` in the context menu.
 
 ![](https://user-images.githubusercontent.com/62588629/236618169-5e904abd-bafe-4fac-8b2d-67fc72f20173.png)

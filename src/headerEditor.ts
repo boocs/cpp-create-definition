@@ -4,6 +4,8 @@ import { HEADER_EXTENSIONS } from './consts';
 
 import * as console from './console';
 
+const MAX_LINES_DECLARATION = 15;
+
 export class HeaderEditor {
     private _isValid = false;
     readonly textEditor: vscode.TextEditor;
@@ -40,10 +42,32 @@ export class HeaderEditor {
         return this.textEditor.document;
     }
 
-    /**Get current line at cursor*/
-    public get currentTextLine(): vscode.TextLine {
+    /**Get current declaration. Can be multi-line*/
+    public get currentDeclaration(): string {
+
+        let declaration = "";
+
         const cursorLine = this.textEditor.selection.active.line;
-        return this.textEditor.document.lineAt(cursorLine);
+        for (let index = 0; index < MAX_LINES_DECLARATION; index++) {
+            const textLine = this.textEditor.document.lineAt(cursorLine + index);
+
+            if(index === 0 && textLine.isEmptyOrWhitespace){
+                return declaration;
+            }
+
+            declaration += textLine.text;
+            
+            // We break out of loop if we have end of declaration
+            if(declaration.includes(';')){
+                console.log("Current line is empty!");
+                break;
+            }
+        }
+        
+        // remove all unneeded whitespace
+        declaration = declaration.replace(/\s{2,}/gm, ' ');
+
+        return declaration;
     }
     
     private isHeader(textEditor: vscode.TextEditor): boolean {
