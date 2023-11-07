@@ -2,17 +2,15 @@
 
 https://github.com/boocs/cpp-create-definition
 
-## [1.1.1] - 2023-09-16
-### Update
-- npm audit fix
 
-## [1.1.0] - 2023-09-13
-### Added
-- Multi line support
-- Create without switching to source file
-### Fixed
-- more reliable classname
-- Removed errant spaces
+
+## How to Install
+
+1. Download the .vsix file from this github
+2. Install inside VSCode:
+
+![image](https://user-images.githubusercontent.com/62588629/225083466-39ca4a93-e06a-4a04-83ba-82d60b548513.png)
+
 
 -----
 ## How To use
@@ -41,3 +39,17 @@ class AFPS5_2Character : public ACharacter
 ```
 void SetHasRifle(bool bNewHasRifle);
 ```
+
+## Latest updates
+
+## [1.1.1] - 2023-09-16
+### Update
+- npm audit fix
+
+## [1.1.0] - 2023-09-13
+### Added
+- Multi line support
+- Create without switching to source file
+### Fixed
+- more reliable classname
+- Removed errant spaces
